@@ -1,10 +1,22 @@
-let minYear = birthData[0].year;
-let maxYear = birthData[birthData.length - 1].year;
+// let minYear = birthData[0].year;
+// let maxYear = birthData[birthData.length - 1].year;
+let minYear = d3.min(birthData, function(d) {
+    return d.year;
+})
+let maxYear = d3.max(birthData, function(d) {
+    return d.year;
+})
 let width = 600;
 let height = 600;
 let barPadding = 10;
 let barNums = 12;
 let barWidth = width / barNums - barPadding;
+let maxBirths = d3.max(birthData, function(d) {
+    return d.births;
+})
+let yScale = d3.scaleLinear()
+                .domain([0, maxBirths])
+                .range([height, 0])
 
 d3.select("input")
     .property("min", minYear)
@@ -21,13 +33,14 @@ d3.select("svg")
     .enter().append("rect")
         .attr("width", barWidth)
         .attr("height", function(d) {
-            return d.births / 2.5e6 * height;
+            //return d.births / maxBirths * height;
+            return height - yScale(d.births);
         })
         .attr("x", function(d, i) {
             return (barPadding + barWidth) * i;
         })
         .attr("y", function(d) {
-            return height - d.births / 2.5e6 * height;
+            return yScale(d.births);
         })
     .attr("fill", "#9090ff");
 
@@ -42,10 +55,10 @@ d3.select("input")
                 return d.year === year;
             }))
             .attr("height", function(d) {
-                return d.births / 2.5e6 * height;
+                return height - yScale(d.births);
             })
             .attr("y", function(d, i) {
-                return height - d.births / 2.5e6 * height;
+                return yScale(d.births);
             })
         d3.select("h2")
             .text("The births in " + year);
